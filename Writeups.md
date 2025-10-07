@@ -30,7 +30,7 @@ Start by checking out citadweller on Instagram.
 ## Solve
 **Flag:** `citadel{17_1s_jus7_7h3_b3g1nn1ng}`
 
-This challenge was a lot of fun. I thought it was a nice way to ease into the ctf. The description gave me the first instruction which was to stalk the citadweller on instagram. After finding the account, I noticed the highlight on the page and opened it to find the first part of the flag and another instruction. That clue led me to the citadweller's X account which gave me the second part of the flag.
+I thought this challenge was a nice way to ease into the ctf. The description gave me the first instruction which was to stalk the citadweller on instagram. After finding the account, I noticed the highlight on the page and opened it to find the first part of the flag and another instruction. That clue led me to the citadweller's X account which gave me the second part of the flag.
 
 ## New Learnings
 I learned what OSINT meant (Open source intelligence) and was able to get a small taste of what an OSINT challenge would be like.
@@ -40,12 +40,137 @@ I learned what OSINT meant (Open source intelligence) and was able to get a smal
 # track 8
 
 ## Challenge Description
-an old MP3 player, scratched and worn. On its surface, a cipher is etched, a message left behind for anyone who can decode it
+Bypassing the second chamber leads to an empty floor except for a single artifact in the center: an old MP3 player, scratched and worn. On its surface, a cipher is etched, a message left behind for anyone who can decode it
 
-
-
-twj eys zpr ukm 'viamnwqw' bx lzgo: esmqqui{yyr_oshwwcm_bwupa}
-
-
+`twj eys zpr ukm 'viamnwqw' bx lzgo: esmqqui{yyr_oshwwcm_bwupa}`
 
 When you power it on, the sound fills the chamber. The tracks play like whispers from a lost world, and you recognize it as a song from Panchiko’s latest studio album, particularly track no. 8. Its title feels familiar, hinting at a famous cipher. Decrypt it by using the album name as your key and continue your ascent.
+
+## Solve
+**Flag:** `citadel{add_vinegar_twice}`
+
+The clue from the description was to look at Panchiko's latest album: Ginkgo. We had to particularly look at track 8 which was "Vinegar". Now I didn't know what cipher vinegar was supposed to hint at so I just googled "Vinegar cipher" only to find out that the cipher I was supposed to use was "Vinegere". After I realized that, I realized I could find an online decoder tool and, as the description said, use "Gingko" as my key. It turned out that the decoded text tossed me another challenge to decipher the flag using the same cipher but with "Panchiko" as the key. After decoding the vinegere cipher twice, I got the flag. 
+
+## New Learnings
+I learned what the vingere cipher was and kind of looked into how it works as well. It's a way to encrypt messages using a keyword that essentially decides how much you shift the message. 
+
+
+
+# Omniscient Flag's Metadata
+
+## Challenge Description
+As you step into the second chamber, a figure manifests. Before you stands a forgotten deity, a dead god spoken of only in whispers. Known by countless names: “Apostle of Epilogue and Eternity”, “Lone Messiah” and many more lost to time.
+
+They leave nothing but a single image, a relic carrying his final secret. Hidden within its layers lies the key to ascend to the next chamber.
+
+## Solve
+**Flag:** `citadel{th1s_ch4ll3ng3_1s_f0r_th4t_0n3_ex1ft00l_4nd_b1nw4lk_enthus14st}`
+
+
+
+## New Learnings
+
+
+
+
+# Test of Sweetness
+
+## Challenge Description
+This floor feels like a digital world. The space is an illusion, all pink and sweet, stretching around you in impossible patterns. Here, you are no longer a climber but just another user.
+
+Ahead, a door glows faintly. It is the only path forward and requires a level of authority you do not yet have. Fragments of session memory flicker, hinting at what it might take to gain higher access.
+
+## Solve
+**Flag:** `citadel{fru1tc4k3_4nd_c00k13s}`
+
+
+## New Learnings
+
+
+
+
+# Rotten Apple
+
+## Challenge Description
+Among the debris of this floor, you find a relic of sound: An album which turns out to be D>E>A>T>H>M>E>T>A>L by Panchiko, a long lost album. But the music is warped, as though it has undergone disc rot.
+
+The path forward is hidden in the distortion. Similar to how the album was warped, the password to the next floor has been warped first by a factor of 47, then by a factor of 13. Untangle these changes to reveal the code and continue your ascent.
+
+## Solve
+**Flag:** `citadel{b3tt3r_ROTt3n}`
+
+The challenge description hinted at two layers of transformation: first ROT47, then ROT13. Since ROT13 is its own inverse, I could undo that part immediately. Taking the given string and running it through ROT13 gave me:
+
+`4:E256=L3bEEbC0#~%Eb?N
+`
+
+Then I applied ROT47 (because it's also its own inverse), which rotates all printable ASCII characters by 47 positions. That final decoding revealed the flag.
+
+## New Learnings
+I got to learn about ROT47, which is like ROT13 but works on a much bigger set of characters. Instead of only shifting A–Z, ROT47 rotates all printable ASCII characters.
+
+
+
+# Randomly Accessed Memories
+
+## Challenge Description
+On your ascent to this floor, you hear these fragments being played back
+```
+clone it, pull it, reset it, stage it,
+commit, push it, fork, rebase it,
+merge it, branch it, tag it, log it,
+add it, stash it, diff, untrack it.
+```
+You look around and discover a chamber containing a vast archive of Daft Punk’s music, intertwined with cryptic commits left behind by other musicians. They seem ordinary at first glance, but not everything in the history is what it seems.
+
+## Solve
+**Flag:** `citadel{w3_4r3_up_4ll_n1t3_t0_g1t_lucky}`
+
+
+## New Learnings
+
+
+
+
+# Selected Ambient Work
+
+## Challenge Description
+The symphonic adventure does not end here. On the next floor, a single song keeps echoing through the floor, repeating in a haunting loop. Amid the sound, you find a note left by a past candidate. It hints that the song holds a secret message, hidden in plain sight, much like how Aphex Twin concealed his face within his music with the help of spectrograms.
+
+To move forward, you must find the message hidden in this sound.
+
+Note: Separate the words in the flag with _ and make it UPPERCASE. Example: citadel{S3L3CT3D_AMB13NT_W0RK}
+
+## Solve
+**Flag:** `citadel{1_LOV3_1DM}`
+
+This challenge produced a .wav file that had a bunch of ambient noise with a clear message: a bunch of morse code bleeps. However, I couldn't just run it through a morse translator because of the ambient music. So I used a spectogram tool to find out which frequencies the morse code tones were producing. This part was kind of cool because I could see the morse patterns in the audio waves. Technically, if I was experienced enough, I could've used the patterns to decode the message but that would've taken too long as the audio was over a minute long. So, I used an equalizer to isolate the morse code sounds and ran the filtered audio through a translator. It turns out the message was a bunch of information about Richard David James but there was one part of the message that didn't look like it belonged: "1 LOV3 1DM". That looked suspicious so I tried that out as the flag, and it worked.
+
+## New Learnings
+I learned how to use a spectogram and equalizer, and who Richard David James is.
+
+
+
+# The Robot's Work
+
+## Challenge Description
+You enter a virtual maze, a labyrinth of shifting corridors and endless paths. A guardian robot patrols the floor, leaving a trail behind as it moves. Follow the path it carves, trace its movements carefully, and uncover the key it leads you to. Only by following the robot’s trail can you reach the door to the next floor.
+
+## Solve
+**Flag:** `citadel{p4th_tr4v3rs4l_m4st3ry_4ch13v3d}`
+
+
+## New Learnings
+
+
+
+
+# Rotting in the Deep
+The floor is quiet, almost unnervingly so – like the Citadel has paused to take your measure. A soft ring of presence settles around the chamber, the kind that marks a true landing: from here, it will ask for more and, in return, grant more. Etched into its surface is a sequence of numbers, worn and faint, as if time itself is eating them away. A whisper from the echoes guides you:
+
+The message lies beneath the surface. Push it three steps forward in the cycle of life, and only then will the words emerge from the void.
+
+## Solve
+
+
+
