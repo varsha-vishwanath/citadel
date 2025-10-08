@@ -266,3 +266,124 @@ Allegedly, the message contained an image that predicted the rise of the Citadel
 **Flag:** `Citadel{l_r34lly_w4nt_t0_st4y_4t_y0ur_h0us3}`
 
 
+
+# The Ripper
+
+## Challenge Description
+The guardian of this floor steps from the shadows. Known only as Jack the Ripper, he watches you carefully. He proclaims himself merciful and hands you a word list to help. He asks you to find the passcode hidden in the file. The word list is your only aid. Only by combining the two correctly, can you uncover the key and move on to the next floor.
+
+Flag format: citadel{password}
+
+## Solve
+**Flag:** `citadel{fake_flag_4_fake_pl4y3rs}`
+
+This challenge presented me with a hash and a wordlist. The first step was identifying what type of hash I was dealing with. The hash began with `$2a$04$` which told me this was a bcrypt hash. The `$2a$` indicates the bcrypt algorithm and `04` represents the cost factor. Since Jack the Ripper provided a wordlist, I knew this was a password cracking and I needed to find which word from the list when hashed with bcrypt, would produce the given hash. The name "The Ripper" was also a hint pointing to John the Ripper, the famous password cracking tool. I used hashcat with mode 3200 (bcrypt) to systematically test each word in the list against the target hash:
+
+```
+echo '$2a$04$RNoyoWAcW0StwSri4YN1Eeb2j1gBNKutDOMxsLzfyfSvB/ghMHToa' > hash.txt
+hashcat -m 3200 -a 0 hash.txt wordlist.txt
+```
+The tool quickly found the matching password, revealing the flag.
+
+## New Learnings
+I learned that a hash algorithm is a one-way mathematical function that takes input data (like a password) and converts it into a fixed-size string of characters that appears random. I also learned how hashcat works (it takes each wordlist and hashes it with the aforementioned cost factor and compares it to the hash we had, the one that matches was the password).
+
+
+
+# AetherCorp NetprobeX
+
+## Challenge Description
+You step into a simulation of the past, entering the ruins of AetherCorp, the most ambitious corporation in history, and their creation, NetProbeX, once the most advanced networking tool the world had ever seen. The floor reconstructs the events that led to humanity’s downfall.
+
+Your task is to find the hidden backdoor in NetProbeX, the flaw that triggered the collapse. By uncovering it, you can reverse the damage and retrieve the passcode to advance to the next floor.
+
+Engineers left faint traces in the logs — small, odd markers where separators once sat. Read these traces as if they divide commands.
+
+Challenge: http://chall_citadel.cryptonitemit.in:32772/
+
+## Solve
+**Flag:** `citadel{bl4ck51t3_4cc3ss_gr4nt3d}`
+
+
+
+# Feels Like We Only Go Backwards
+
+## Challenge Description
+After finding the backdoor and making your way to the next floor, you step into a chamber awash with shifting colors and swirling echoes, a concert frozen in time. Kevin Parker stands at the center, his riffs bending reality around him. To ascend, you’ll need to join the session on his terms: push your voice further than comfort, align yourself with the number he hides in the haze, and piece together the melody concealed within layers of reverb. Only then will the music open the way upward.
+
+## Solve
+**Flag:** `citadel{f0r_0n3_m0r3_h0ur_1_c4n_r4g3}`
+
+
+
+# Database Incursion
+
+## Challenge Description
+After your legendary battle with the artist, the virtual world has returned, stretching around you in endless grids and flickering data, you find a rogue data terminal and on careful inspection, you find you’re able to inject rogue structured queries. Using this critical vulnerability, find a way to extract the hidden passcode.
+
+Challenge: https://databaseincursion.citadel.cryptonitemit.in
+
+## Solve
+**Flag:** `citadel{wh3n_w1ll_y0u_f1nd_0u7_1f_175_5ql_0r_53qu3l?}`
+
+
+
+# BRATCHA
+A clear chime rolls through the chamber and a new crest ignites on your badge – a quiet promotion. The outer ring is behind you. From here, the Citadel opens its inner systems, and the locks grow heavier because the keys are worth more. Your answers now carry more weight – and earn more in return. The citadel welcomes you to the inner climb.
+
+Near the gate to the next floor you come across a CAPTCHA verification test, but it has been covered by scratches on the decaying wall and misleading letters stopping you from finding the correct key, all to prove you’re human.
+
+## Solve
+**Flag:** `citadel{1m_3v3rywh3r3_1m_s0_jul1a}`
+
+
+
+# A Memory's a Heavy Burden
+
+## Challenge description
+You now find yourself in the place where many climbers have been laid to rest. A cold wind moves through the temple grounds, carrying whispers of the departed. Stone lanterns and marble graves reflect Buddhist traditions, their shadows stretching across the frost-covered earth.
+
+The temple rests in the shadow of a very iconic mountain, quiet and imposing. Every detail in the image, the arrangement of the graves, the lanterns, and the lingering scent of incense, holds clues to its true location. You need to uncover the exact coordinates of where you are to move on from here.
+
+Note: round off coordinates to 3 decimal places.
+
+Flag format: citadel{XX.XXX_XXX.XXX}
+
+## Solve
+**Flag:** `citadel{35.486_136.699}`
+
+
+
+# Case Sensitivity
+
+## Challenge Description
+You step into a constricted floor where every movement and operation is limited. Commands are few, space is tight, and options are restricted.
+
+A guardian looms over the floor, its body shifting like liquid metal, enforcing these constraints. It watches your every move, daring you to make do with what you have and uncover the passcode to the next floor despite the restrictions.
+
+Connection: nc chall_citadel.cryptonitemit.in 32770
+
+## Solve
+**Flag:** `citadel{d34th_d035_n07_fr33_y0u_fr0m_7h3_gu17ar15t}`
+
+
+
+# Viral Bionic Anomaly
+
+## Challenge Description
+This floor is haunted by a phantom of the past. You encounter a presentation created by the last employee of a forgotten corporation, made just minutes before the Citadel awoke.
+
+Rumor has it that the corporation predicted the rise of the Citadel. Within the slides, a "starter pack" holds the clues you need. Use it to confront the "final boss", a threat trapped inside a macro hidden deep within the presentation, and claim the key to the next floor.
+
+## Solve
+**Flag:** `citadel{gr4b_y0ur_l4bubus_m4tch4s_4nd_dub41_ch0c0l4t3s_y0u_4r3_1n_f0r_4_r1d3}`
+
+
+
+
+
+
+
+
+
+
