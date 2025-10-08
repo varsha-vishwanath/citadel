@@ -171,6 +171,47 @@ The floor is quiet, almost unnervingly so – like the Citadel has paused to tak
 The message lies beneath the surface. Push it three steps forward in the cycle of life, and only then will the words emerge from the void.
 
 ## Solve
+**Flag:** `citadel{br0_r34lly_unr0tt3d_m3_b4ck_t0_l1f3}`
+
+This challenge came with two files: chal.py and out.txt. After reading both I knew that out.txt was the output of chal.py. Chal.py was the program that encrypted the flag by first converting the bytes of the flag to an integer and that integer to a string. Then it performed a caesar shift on the string, moving all digits with a key of 3 (added 3 to each digit). I was having trouble figuring out how to decode the integer after undoing the caesar cipher, because I was unable to install the same library and module chal.py used to encode the flag (cryptodome). Additionally I couldn't find a website that handled such a long integer either and found that I could use python to solve this in one go. So I used the following program:
+```
+def long_to_bytes(n):
+    """Convert a long integer to bytes"""
+    if n == 0:
+        return b'\x00'
+    return n.to_bytes((n.bit_length() + 7) // 8, 'big')
+
+KEY = 3
+encrypted = "6895840967002953721051398351211751734500850509315790892845302801984496338433523326225010635779036738800318"
+
+# Reverse the digit shift
+decrypted_digits = ""
+for digit in encrypted:
+    decrypted_digits += str((int(digit) - KEY) % 10)
+
+# Convert to integer then to bytes
+decrypted_number = int(decrypted_digits)
+flag_bytes = long_to_bytes(decrypted_number)
+
+print(flag_bytes.decode())
+```
+I ran this and was able to get the flag.
+
+
+
+# Coco Conjecture
+
+## Challenge Description
+The door to the next floor is guarded by a figure who calls herself "The Dragon CEO". She does not speak of mercy or choice, only of order and efficiency.
+
+To enter the next chamber, you must complete the task presented by her. Complete it exactly as instructed, achieving operational efficiency by her standards, and the path forward will open.
+
+Connection: nc chall_citadel.cryptonitemit.in 61234
+
+## Solve
+**Flag:** `citadel{k1ryu_c0c0_h4s_4_g0_4t_4n_uns0lv3d_m4th3m4t1cs_pr0bl3m}`
+
+
 
 
 
