@@ -49,7 +49,7 @@ When you power it on, the sound fills the chamber. The tracks play like whispers
 ## Solve
 **Flag:** `citadel{add_vinegar_twice}`
 
-The clue from the description was to look at Panchiko's latest album: Ginkgo. We had to particularly look at track 8 which was "Vinegar". Now I didn't know what cipher vinegar was supposed to hint at so I just googled "Vinegar cipher" only to find out that the cipher I was supposed to use was "Vinegere". After I realized that, I realized I could find an online decoder tool and, as the description said, use "Gingko" as my key. It turned out that the decoded text tossed me another challenge to decipher the flag using the same cipher but with "Panchiko" as the key. After decoding the vinegere cipher twice, I got the flag. 
+The clue from the description was to look at Panchiko's latest album: Ginkgo. We had to particularly look at track 8 which was "Vinegar". Now I didn't know what cipher vinegar was supposed to hint at so I just googled "Vinegar cipher" only to find out that the cipher I was supposed to use was "Vigenère". After I realized that, I realized I could find an online decoder tool and, as the description said, use "Ginkgo" as my key. It turned out that the decoded text tossed me another challenge to decipher the flag using the same cipher but with "Panchiko" as the key. After decoding the vigenère cipher twice, I got the flag. 
 
 ## New Learnings
 I learned what the vingere cipher was and kind of looked into how it works as well. It's a way to encrypt messages using a keyword that essentially decides how much you shift the message. 
@@ -328,7 +328,7 @@ You come across the remnants of a fallen corporation and the final network commu
 Allegedly, the message contained an image that predicted the rise of the Citadel. Your task is to uncover what was sent and decode the communication to extract the passcode that will unlock the next floor.
 
 ## Solve
-**Flag:** `Citadel{l_r34lly_w4nt_t0_st4y_4t_y0ur_h0us3}`
+**Flag:** `citadel{l_r34lly_w4nt_t0_st4y_4t_y0ur_h0us3}`
 
 This challenge came with a pcap file and the citadel discord server had previously suggested using IDA at somepoint in the challenge so I thought I'd use it to decompile `challenge.pcap`. This was tricky because I've never done this kind of thing before and had to use a lot of help in order to assimilate everything.
 
@@ -478,7 +478,7 @@ Note: round off coordinates to 3 decimal places.
 Flag format: citadel{XX.XXX_XXX.XXX}
 
 ## Solve
-**Flag:** `citadel{35.486_136.699}`
+**Flag:** `citadel{35.486_138.699}`
 
 This challenge gave us an image and we had to identify where we were. I kind of just guessed that it was Mt.Fuji because I recognized it, but this was later confirmed with the hint given. The compass at the bottom right indicated that Mt. Fuji was to the south, so the temple with the graveyard had to be north of the mountain. Searching for  temples in that area and exploring them via Street View eventually led to finding the exact temple and the viewpoint matching the image. Using Google Maps, I retrieved the precise coordinates: 35.485689, 138.698744. Rounding to three decimal places gives the final flag.
 
