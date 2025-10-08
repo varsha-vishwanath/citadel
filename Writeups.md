@@ -66,6 +66,9 @@ They leave nothing but a single image, a relic carrying his final secret. Hidden
 ## Solve
 **Flag:** `citadel{th1s_ch4ll3ng3_1s_f0r_th4t_0n3_ex1ft00l_4nd_b1nw4lk_enthus14st}`
 
+The challenge gave a single image file called challenge.jpg. Since the description mentioned metadata, I figured the flag would probably be hidden in the image properties. So I tried running exiftool challenge.jpg, but apparently I didn’t have it installed. I just used sudo apt install exiftool to get it, and then checked the metadata.
+
+Nothing obvious popped up except for one author tag that said  “kdj had a habit of hiding images within images”. That hinted at steganography to me.
 
 
 ## New Learnings
