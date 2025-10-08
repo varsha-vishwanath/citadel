@@ -68,11 +68,15 @@ They leave nothing but a single image, a relic carrying his final secret. Hidden
 
 The challenge gave a single image file called challenge.jpg. Since the description mentioned metadata, I figured the flag would probably be hidden in the image properties. So I tried running exiftool challenge.jpg, but apparently I didn’t have it installed. I just used sudo apt install exiftool to get it, and then checked the metadata.
 
-Nothing obvious popped up except for one author tag that said  “kdj had a habit of hiding images within images”. That hinted at steganography to me.
+Nothing obvious popped up except for one author tag that said  “kdj had a habit of hiding images within images”. That hinted at steganography to me. To check if the JPEG had something appended to it, I ran xxd challenge.jpg | tail -20 to look at the file’s ending. The hex dump ended with IEND and B, which are markers from a PNG file. So there was another image stuffed at the end of this JPG.
+
+I used a Python one-liner to read the whole file, find where the JPEG ended (FFD9), and dump everything after that into a new file called hidden.png. The script said it wrote a few hundred kilobytes, but when I checked, hidden.png didn’t actually open. It wasn’t a valid PNG. That meant I probably cut it wrong and needed to find where the PNG header actually started.
+
+I modified the script to search for the PNG header bytes (\x89PNG\r\n\x1a\n) in the original challenge.jpg instead of just after the JPEG end. This time it found it at byte 87530, so I dumped everything from there into a new file called correct.png. When I checked that file, it finally showed up as a valid PNG image. Opening it revealed the flag.
 
 
 ## New Learnings
-
+I learned how JPEG files can have other files appended to them and how to manually carve them out by finding their magic bytes.
 
 
 
@@ -86,9 +90,7 @@ Ahead, a door glows faintly. It is the only path forward and requires a level of
 ## Solve
 **Flag:** `citadel{fru1tc4k3_4nd_c00k13s}`
 
-
-## New Learnings
-
+On visiting the site, we were given a clue saying, "How does a website remember you?" The answer was using cookies. On changing the value of the user cookie to "admin", we were able to obtain the flag. 
 
 
 
@@ -129,10 +131,23 @@ You look around and discover a chamber containing a vast archive of Daft Punk’
 ## Solve
 **Flag:** `citadel{w3_4r3_up_4ll_n1t3_t0_g1t_lucky}`
 
+The challenge included a repo, so I cloned it with `git clone https://github.com/evilcryptonite/daft-punk-archive` and got into the folder. The hint about commits made me think something was hidden in the history rather than the files in the tree, so I ran `git log --oneline` to look at the commit messages. Most of the history was routine spam, but every now and then there were messages about secret chunks: `Add secret chunk 1 (base64)`, `Add secret chunk 2 (base64)`, `Add secret chunk 3 (base64)` and corresponding “Remove secret chunk X file (history-only)” commits. That told me the files were added in earlier commits and later removed.
 
-## New Learnings
+I pulled each offending commit with `git show <commit>` (so `git show 50474f3`, `git show cc8b79a`, `git show 79af115`) and copied the contents shown in the diffs. Each `secret_chunk_X.b64` was just a tiny base64 blob. From the diffs I got:
 
+```
+Y2l0YWRlbHt3M180cjM=
+X3VwXzRsbF9uMXQzXw==
+dDBfZzF0X2x1Y2t5fQ==
+```
 
+I decoded them on the shell using `echo "<b64>" | base64 -d`. The outputs for each were:
+
+`echo "Y2l0YWRlbHt3M180cjM=" | base64 -d` → `citadel{w3_4r3%`
+`echo "X3VwXzRsbF9uMXQzXw==" | base64 -d` → `_up_4ll_n1t3_%`
+`echo "dDBfZzF0X2x1Y2t5fQ==" | base64 -d` → `t0_g1t_lucky}%`
+
+Put the pieces together in order and I got the full flag.
 
 
 # Selected Ambient Work
@@ -214,8 +229,50 @@ Connection: nc chall_citadel.cryptonitemit.in 61234
 ## Solve
 **Flag:** `citadel{k1ryu_c0c0_h4s_4_g0_4t_4n_uns0lv3d_m4th3m4t1cs_pr0bl3m}`
 
+The PDF included in the challenge (Coco_Conjecture.pdf) explained the rules and the remote service just spits numbers and expects the number of steps to reach 1 under the 3n+1 rule. We wrote a simple socket client that connects to `chall_citadel.cryptonitemit.in:61234`, reads lines, parses the “Round: <n>” prompts and sends back the Collatz step counts. The core of it is the `collatz_steps(n)` routine that loops `while n != 1: n = n//2 if n%2==0 else 3*n+1` and increments a counter. The network loop just reads the remote lines (buffered), detects the rounds, computes `steps(n)`, and `sendall(str(steps)+"\n")`. It runs for 269 rounds and then the server prints the flag.
 
+The script prints all the received rounds and the calculated steps as it goes, and after the final round the service returns the flag line. The socket client code looked like this:
+```
+import socket
 
+def collatz_steps(n):
+    steps = 0
+    while n != 1:
+        if n % 2 == 0:
+            n = n // 2
+        else:
+            n = 3 * n + 1
+        steps += 1
+    return steps
+
+sock = socket.create_connection(('chall_citadel.cryptonitemit.in', 61234), timeout=10)
+buffer = ""
+round_count = 0
+
+try:
+    while round_count < 270:
+        data = sock.recv(4096).decode()
+        if not data:
+            break
+        buffer += data
+        lines = buffer.split('\n')
+        for line in lines[:-1]:
+            line = line.strip()
+            if not line:
+                continue
+            if 'citadel{' in line:
+                print("FLAG FOUND:", line)
+                raise SystemExit
+            if line.startswith('Round') and ':' in line:
+                n = int(line.split(':',1)[1].strip())
+                result = collatz_steps(n)
+                sock.sendall((str(result) + '\n').encode())
+                round_count += 1
+        buffer = lines[-1]
+finally:
+    sock.close()
+```
+After the last reply the server returned the flag
 
 # schlagenheim
 
@@ -242,6 +299,13 @@ You realise that a previous climber has set up a puzzle in what was otherwise an
 ## Solve
 **Flag:** `citadel{pyr4m1d+x0r}`
 
+The challenge provided a huge block of ciphertext, which the description hinted was a sliding XOR. At first, it looked impossible to tackle manually, but the Python wrapper included in the challenge gave a clue: the text started and ended with known phrases — something like "bro i have a cRAzy story … citadel{" at the start and "} it was crazy like how did it get there??" at the end. That told me the flag was XORed inside, and these known plaintext parts could be used to recover the key sequence.
+
+I copied the ciphertext into a Python script and used a routine to XOR the known wrappers against the ciphertext to extract the key. The code basically loops through the start and end wrappers, applies XOR with the sliding sequence, and generates the key. Once I had the key, applying it across the whole ciphertext revealed the decrypted text. Running the script printed something like:
+```
+bro i have a cRAzy story to tell you i went to ant4rctica and BOOM i saw a random citadel{pyr4m1d+x0r} it was crazy like how did it get there??
+```
+Which gave me the flag.
 
 
 # The Sound of Music
@@ -307,6 +371,11 @@ Challenge: http://chall_citadel.cryptonitemit.in:32772/
 ## Solve
 **Flag:** `citadel{bl4ck51t3_4cc3ss_gr4nt3d}`
 
+The web UI only let you run `ping` but it echoed back errors for anything the devs considered “malicious.” I first tried `127.0.0.1; id` and the app refused the `;` with “Error: Malicious character ';' detected.” But `%0a` (URL‑encoded newline) worked as a separator, so `127.0.0.1%0aid` printed normal ping output and then `uid=100(ctf)`. That told me the filter was superficial. They blocked certain characters and words but forgot that newlines can be used.
+
+From there I started looking around the cd with `127.0.0.1%0a ls -la` and saw `app.py`, `mission_briefing.txt` and a small `templates` dir. `mission_briefing.txt` was just a flavor text (OPERATION: SILENT ECHO — BLACK ICE). `app.py` turned out to be the whole point: the WAF lived in Python and had a giant `BLACKLISTED_WORDS` list (sh, bash, python, cat, grep, etc.) and `BLACKLISTED_CHARS`. `cat` and `grep` were banned, but `head`, `tail`, `less` and `ls` were allowed. The app built the command as `ping -c 4 -W 3 {target}` after filtering, so the trick was to URL‑encode a newline (`%0a`) and chain allowed commands together.
+
+The app gave a hint about a “Blacksite Key,” so I looked for filenames with “key” in them using `127.0.0.1%0a find / -type f -name "*key*" 2>/dev/null`. The output was noisy but one path stuck out: `/var/lib/aethercorp/archive/.secrets/blacksite_key.dat`. That looked promising, so I used `head` to look: `127.0.0.1%0a head /var/lib/aethercorp/archive/.secrets/blacksite_key.dat` and the file started with the flag.
 
 
 # Feels Like We Only Go Backwards
@@ -316,6 +385,20 @@ After finding the backdoor and making your way to the next floor, you step into 
 
 ## Solve
 **Flag:** `citadel{f0r_0n3_m0r3_h0ur_1_c4n_r4g3}`
+
+This challenge gave us an executable called tameimpala, so we moved into` ~/Downloads`, made the file runnable with `chmod +x tameimpala` and ran it. 
+
+The first level looks like this:
+<img width="1457" height="168" alt="image" src="https://github.com/user-attachments/assets/9e4959cf-7d37-41ad-b379-a1262b109ea1" />
+
+We knew the answer was `music to walk home by` because it's a tame impala song, and that brought us to level 2:
+<img width="1007" height="242" alt="image" src="https://github.com/user-attachments/assets/74b50dd0-4edb-40cf-bfe8-061ed6d347be" />
+
+The third level contains the flag but it’s hidden by a transform. The binary stores a table of encoded_data and it references a memory_bytes pattern; the decoding formula is basically:
+```
+input_char[i] = (encoded_data[i] - 5*i - memory_bytes[i]) / 2
+```
+We translated that into a short Python snippet that iterates 37 entries, applies the formula and converts each result to a character if it’s printable. Running the script printed a near‑complete phrase of Tame Impala lyrics. It decodes into something like citadel{f0r_0n3_m0r3_h0ur_1_c4n_[-16]0"/[-16] where the last few bytes looked off because of signedness / minor integer rounding in my quick script. Given the lyric “for one more hour I can rage” and the decoded prefix, we found the needed flag.
 
 
 
