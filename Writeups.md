@@ -214,4 +214,55 @@ Connection: nc chall_citadel.cryptonitemit.in 61234
 
 
 
+# schlagenheim
+
+## Challenge Description
+Your quest continues, but you feel something odd about this room. The only artifact on this floor is a corrupted file held in the hands of a jet-black statue, frozen in the pose of a band mid-performance. The passcode to the next floor is hidden within this piece of music, but it can’t be played, as if the wrong extension has scrambled it.
+
+You must take the corrupted file and repair it to reveal the true code that will unlock the door forward.
+
+## Solve
+**Flag:** `citadel{8lackM1D1wa5c00l}`
+
+This challenge came with a mysong.wav file. I first tried to look at the file's signature by running `file mysong.wav` in the terminal. That returned the type as generic "data" meaning the shell wasn't able to identify the file signature. So I used `hexdump -C mysong.wav` in order to see the magic bytes. The hex code was `4d 31 44 31` which doesn't match any file type but I noticed that it read M1D1 in ASCII. That told me that the file was supposed to be a midi file and thus I tried to edit the file signature by using `hexedit mysong.wav` in order to change the magic bytes to the regular midi file signature `4d 54 68 64`. After this I redefined the file type using `mv mysong.wav mysong.mid`. This meant I was able to play the file, but in order to see the patterns that MIDI sequences have I used an online midi player and saw that the pattern displayed was the flag.
+
+## New Learnings
+I learned that file signatures were defined using magic bytes.
+
+
+
+# XOR Slide
+
+## Challenge Description
+You realise that a previous climber has set up a puzzle in what was otherwise an empty room, blocking the entrance to the next floor on the ceiling. You must slide the blocks forming the pyramid to create a path above.
+
+## Solve
+**Flag:** `citadel{pyr4m1d+x0r}`
+
+
+
+# The Sound of Music
+
+## Challenge Description
+🗼OSINT pt2: citadweller had a newfound interest in tracking the music they last listened to and posting ratings of new albums on various online platforms.
+
+The flag is hidden in these digital footprints across music platforms and split into three segments. You will need to find all three to uncover the complete code and move on to the next floor.
+
+## Solve
+**Flag:** `citadel{c0mputers_st0pped_exchang1ng_1nf0rmat10n_n_started_shar1ng_st0r1es_n_then_they_were_n0where_t0_be_f0und}`
+
+This challenge was easy because we'd already found the last two parts while stalking the citadweller in OSINT pt1. We first found part 2 on rateyourmusic and found part 3 on spotify. Part 3 took us a bit but we finally found it on lastfm and combined all 3 parts to get the complete flag
+
+
+
+# Echoes and Pings
+
+## Challenge Description
+You come across the remnants of a fallen corporation and the final network communication ever sent by them.
+
+Allegedly, the message contained an image that predicted the rise of the Citadel. Your task is to uncover what was sent and decode the communication to extract the passcode that will unlock the next floor.
+
+## Solve
+**Flag:** `Citadel{l_r34lly_w4nt_t0_st4y_4t_y0ur_h0us3}`
+
 
