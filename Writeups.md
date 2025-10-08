@@ -382,11 +382,5 @@ The challenge came with a file: challenge.pptm. The ppt told me that I had to lo
 
 I first combined all the strings a1 to a21 and decoded them from base32 (in cyberchef) into hex code. The result started with ffd8 so I knew in the end I'd have to convert the concatenated hex code into a jpg file. Then I moved on to the variables b1-b26. This took me a while because based off of the function's label, I thought I had to decode from base58 but that wasn't working and returning junk values. I used AI to figure out what code the variables were and that returned hex and that led me to believe I didn't have to convert those strings. Just to make sure, I tried converting the combined hex from the 'a' and 'b' variables but that resulted in an error. Finally, I realized that the strings could be hex that was hex coded, so I decoded them from hex using cyberchef and got the proper hex code to use. I tested the concatenated variables and got half the image, which gave me the flag, I didn't have to decode the last variables as they weren't important to capturing the flag (although I did, and decoded C1-c18 from base64 and adding that gave me the bottom half of the image).
 
-
-
-
-
-
-
-
-
+## New Learnings
+I learned how to read and interpret VBA macros to understand layered encoding. I also figured out how to identify and decode Base32, Base58, and Base64 data manually using CyberChef. This helped me understand how macros can hide data through multiple transformations.
