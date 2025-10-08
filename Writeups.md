@@ -169,7 +169,7 @@ I learned how to use a spectogram and equalizer, and who Richard David James is.
 
 
 
-# The Robot's Work
+# The Robot's Trail
 
 ## Challenge Description
 You enter a virtual maze, a labyrinth of shifting corridors and endless paths. A guardian robot patrols the floor, leaving a trail behind as it moves. Follow the path it carves, trace its movements carefully, and uncover the key it leads you to. Only by following the robot’s trail can you reach the door to the next floor.
@@ -177,9 +177,7 @@ You enter a virtual maze, a labyrinth of shifting corridors and endless paths. A
 ## Solve
 **Flag:** `citadel{p4th_tr4v3rs4l_m4st3ry_4ch13v3d}`
 
-
-## New Learnings
-
+This challenge pointed to a site. There were a bunch of decoy buttons and a hint to change display: none, so I flipped that to all and a new option appeared that led me to robots.txt. The robots file was basically listed a few disallowed `/file` paths that pointed at `../../etc/passwd`. Hitting `/file?path=../../etc/passwd` returned a passwd‑style dump and one line pointed me to `/var/www/html/config.php`. Fetching that returned `config.php` with database credentials and a comment pointing to `/var/log/apache2/access.log`. The access log included requests and a note about `/proc/self/environ`, so I read `/file?path=/proc/self/environ` and found `SECRET_LOCATION=/home/ctf/.secret`. Listing that directory revealed `flag.txt` and `GET /file?path=/home/ctf/.secret/flag.txt` produced the flag.
 
 
 
@@ -332,6 +330,29 @@ Allegedly, the message contained an image that predicted the rise of the Citadel
 ## Solve
 **Flag:** `Citadel{l_r34lly_w4nt_t0_st4y_4t_y0ur_h0us3}`
 
+This challenge came with a pcap file and the citadel discord server had previously suggested using IDA at somepoint in the challenge so I thought I'd use it to decompile `challenge.pcap`. This was tricky because I've never done this kind of thing before and had to use a lot of help in order to assimilate everything.
+
+The pcap looked small but suspicious: 36 TCP packets and 2 ICMP packets. Since the description said an “image” was sent, I skimmed the raw bytes and noticed the first ICMP packet started with the JPEG magic number `ff d8 ff e0` (JFIF) and the second ICMP packet ended with `ff d9`. I used Scapy to pull the ICMP payloads and dump them straight to a file:
+
+```
+from scapy.all import rdpcap, Raw, ICMP
+
+pkts = rdpcap('challenge.pcap') 
+data = bytearray()
+
+for p in pkts:
+    if p.haslayer(ICMP) and p.haslayer(Raw):
+        data.extend(bytes(p[Raw].load))
+
+if data.startswith(b'\xff\xd8') and data.endswith(b'\xff\xd9'):
+    with open('icmp_image.jpg', 'wb') as f:
+        f.write(data)
+    print('Wrote icmp_image.jpg')
+else:
+    print('Extracted data does not look like a complete JPEG; inspect bytes or packet order.')
+```
+I ran that, opened icmp_image.jpg and the image had the flag in it.
+
 
 
 # The Ripper
@@ -389,9 +410,11 @@ After finding the backdoor and making your way to the next floor, you step into 
 This challenge gave us an executable called tameimpala, so we moved into` ~/Downloads`, made the file runnable with `chmod +x tameimpala` and ran it. 
 
 The first level looks like this:
+
 <img width="1457" height="168" alt="image" src="https://github.com/user-attachments/assets/9e4959cf-7d37-41ad-b379-a1262b109ea1" />
 
 We knew the answer was `music to walk home by` because it's a tame impala song, and that brought us to level 2:
+
 <img width="1007" height="242" alt="image" src="https://github.com/user-attachments/assets/74b50dd0-4edb-40cf-bfe8-061ed6d347be" />
 
 The third level contains the flag but it’s hidden by a transform. The binary stores a table of encoded_data and it references a memory_bytes pattern; the decoding formula is basically:
@@ -412,6 +435,12 @@ Challenge: https://databaseincursion.citadel.cryptonitemit.in
 ## Solve
 **Flag:** `citadel{wh3n_w1ll_y0u_f1nd_0u7_1f_175_5ql_0r_53qu3l?}`
 
+This challenge gave us a login form, so I opened it in my browser and started `' OR '1'='1` into the username field and left the password blank. The app accepted it and returned a logged‑in view, so we knew it was vulnerable to SQL injection.
+
+We tried to pull metadata from the DB (system tables, sqlite_master, etc) with a union query like `' UNION SELECT name FROM sqlite_master --` but the app had some protections that blocked direct reads of system tables. That meant we had to to work with the app’s own tables. From the UI I saw employee listings, so I tried payloads that would filter the employees table. Stuff like `Management' OR department='Management' --` and `Kiwi' OR name='Kiwi' -- `let me gauge how results were rendered and what columns existed, but the flag didn’t show up straight away.
+
+Once we had a feel for the structure, I used a UNION that matched the visible columns and pulled more columns from the `employees` table, something like `' UNION SELECT 1,name,department,email,notes FROM employees WHERE name='Kiwi' --`. That returned extra fields in the UI and one of those fields contained the passcode. The flag was in a notes/email column for the management user. The app wasn’t filtering output for unioned rows, so the flag slipped through once I matched the column count and types.
+
 
 
 # BRATCHA
@@ -421,6 +450,19 @@ Near the gate to the next floor you come across a CAPTCHA verification test, but
 
 ## Solve
 **Flag:** `citadel{1m_3v3rywh3r3_1m_s0_jul1a}`
+
+The challenge gave an image of an abused CAPTCHA where each letter is overlapping another resulting in two possibilities per character. By looking at it, we extracted the following: 
+
+* position 1 could be `s` or `c`
+* pos2 `g` or `q`
+* pos3 `x` or `y`
+* pos4 `h` or `n`
+* pos5 `x` or `v`
+* pos6 `B` or `D`
+* pos7 `h` or `n`
+* pos8 `Z` or `S`
+
+That’s 2^8 = 256 combinations, so brute forcing pastebin links seemed like the right move. I used Python’s itertools.product to generate every combination and built each 8‑character code. For each code, I tried opening the corresponding raw URL using urllib.request with a short timeout, printing progress every few tries so I could keep an eye on the loop while it ran. After cycling through the possibilities, one of the URLs returned a 200 response and revealed the hidden message confirming I was human, along with the flag.
 
 
 
@@ -438,6 +480,8 @@ Flag format: citadel{XX.XXX_XXX.XXX}
 ## Solve
 **Flag:** `citadel{35.486_136.699}`
 
+This challenge gave us an image and we had to identify where we were. I kind of just guessed that it was Mt.Fuji because I recognized it, but this was later confirmed with the hint given. The compass at the bottom right indicated that Mt. Fuji was to the south, so the temple with the graveyard had to be north of the mountain. Searching for  temples in that area and exploring them via Street View eventually led to finding the exact temple and the viewpoint matching the image. Using Google Maps, I retrieved the precise coordinates: 35.485689, 138.698744. Rounding to three decimal places gives the final flag.
+
 
 
 # Case Sensitivity
@@ -451,6 +495,16 @@ Connection: nc chall_citadel.cryptonitemit.in 32770
 
 ## Solve
 **Flag:** `citadel{d34th_d035_n07_fr33_y0u_fr0m_7h3_gu17ar15t}`
+
+This challenge was frustrating because absolutely nothing was working for the first couple of attempts. The service is a tiny restricted Python REPL that aggressively blocks obvious ways to read the flag. The the trick was to abuse what is allowed: string indexing, `exec`, and environment access via `environ`.
+
+I started by probing what case variants of flag or FLAG might be visible. Stuff like `environ['FLAG']` and `Print(Environ['FLAG'])` hinted that “environ” and “print” (or close variants) were accessible if constructed properly. The REPL is case‑sensitive, so the variable name for the flag wasn’t flag. It was stored in an environment mapping.
+
+Because the REPL lets you index strings, I built up identifiers by indexing a constant string "0123456789abcdefghijklmnopqrstuvwxyz" by concatenating characters, then execing the resulting code. For example, I constructed print by taking indices that map to p-r-i-n-t and environ by mapping to e-n-v-i-r-o-n. Then I combined them into a single exec call that prints the environment value for the key 'FLAG'.
+
+<img width="1471" height="343" alt="image" src="https://github.com/user-attachments/assets/814ad1c4-5efe-4ce6-b53e-380d2fe0d96f" />
+
+That's how I got the flag.
 
 
 
